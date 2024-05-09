@@ -1,87 +1,140 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <queue>
 
 using namespace std;
 
 class Graph {
 private:
-    vector<vector<int>> adjList;
+    int V;
+    vector<vector<int>> adj;
 
 public:
-    Graph(int vertices) {
-        adjList.resize(vertices);
+    Graph(int vertices) : V(vertices) {
+        adj.resize(V);
     }
 
     void addEdge(int u, int v) {
-        adjList[u].push_back(v);
+        adj[u].push_back(v);
     }
 
-    void BFSRecursive(queue<int>& q, unordered_set<int>& visited) {
-        if (q.empty()) return;
+    // Depth First Search (Recursive)
+    void dfsRecursiveUtil(int v, vector<bool>& visited) {
+        visited[v] = true;
+        cout << v << " ";
 
-        int current = q.front();
+        for (int i : adj[v]) {
+            if (!visited[i])
+                dfsRecursiveUtil(i, visited);
+        }
+    }
+
+    void dfsRecursive(int start) {
+        vector<bool> visited(V, false);
+        dfsRecursiveUtil(start, visited);
+    }
+
+    // Depth First Search (Iterative)
+    void dfsIterative(int start) {
+        vector<bool> visited(V, false);
+        stack<int> stack;
+
+        stack.push(start);
+
+        while (!stack.empty()) {
+            int v = stack.top();
+            stack.pop();
+
+            if (!visited[v]) {
+                cout << v << " ";
+                visited[v] = true;
+
+                for (int i : adj[v]) {
+                    if (!visited[i])
+                        stack.push(i);
+                }
+            }
+        }
+    }
+
+    // Breadth First Search (Recursive)
+    void bfsRecursiveUtil(queue<int>& q, vector<bool>& visited) {
+        if (q.empty())
+            return;
+
+        int v = q.front();
         q.pop();
-        cout << current << " ";
+        cout << v << " ";
 
-        for (int neighbor : adjList[current]) {
-            if (visited.find(neighbor) == visited.end()) {
-                q.push(neighbor);
-                visited.insert(neighbor);
+        for (int i : adj[v]) {
+            if (!visited[i]) {
+                visited[i] = true;
+                q.push(i);
             }
         }
 
-        BFSRecursive(q, visited);
+        bfsRecursiveUtil(q, visited);
     }
 
-    void BFS(int start) {
-        unordered_set<int> visited;
+    void bfsRecursive(int start) {
+        vector<bool> visited(V, false);
         queue<int> q;
-        q.push(start);
-        visited.insert(start);
 
-        cout << "BFS traversal starting from node " << start << ": ";
-        BFSRecursive(q, visited);
-        cout << endl;
+        visited[start] = true;
+        q.push(start);
+
+        bfsRecursiveUtil(q, visited);
     }
 
-    void DFSUtil(int node, vector<bool>& visited) {
-        visited[node] = true;
-        cout << node << " ";
+    // Breadth First Search (Iterative)
+    void bfsIterative(int start) {
+        vector<bool> visited(V, false);
+        queue<int> q;
 
-        for (int neighbor : adjList[node]) {
-            if (!visited[neighbor]) {
-                DFSUtil(neighbor, visited);
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty()) {
+            int v = q.front();
+            q.pop();
+            cout << v << " ";
+
+            for (int i : adj[v]) {
+                if (!visited[i]) {
+                    visited[i] = true;
+                    q.push(i);
+                }
             }
         }
-    }
-
-    void DFS(int start) {
-        vector<bool> visited(adjList.size(), false);
-        cout << "DFS traversal starting from node " << start << ": ";
-        DFSUtil(start, visited);
-        cout << endl;
     }
 };
 
 int main() {
-    int vertices, edges;
-    cout << "Enter the number of vertices and edges: ";
-    cin >> vertices >> edges;
+    int V = 5; // Number of vertices
+    Graph g(V);
 
-    Graph g(vertices);
+    // Adding edges
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 3);
+    g.addEdge(1, 4);
 
-    cout << "Enter edges (u v):" << endl;
-    for (int i = 0; i < edges; ++i) {
-        int u, v;
-        cin >> u >> v;
-        g.addEdge(u, v);
-    }
+    cout << "Depth First Search (Recursive): ";
+    g.dfsRecursive(0);
+    cout << endl;
 
-    int start;
-    cout << "Enter the start node for traversal: ";
-    cin >> start;
+    cout << "Depth First Search (Iterative): ";
+    g.dfsIterative(0);
+    cout << endl;
 
-    g.BFS(start);
-    g.DFS(start);
+    cout << "Breadth First Search (Recursive): ";
+    g.bfsRecursive(0);
+    cout << endl;
+
+    cout << "Breadth First Search (Iterative): ";
+    g.bfsIterative(0);
+    cout << endl;
 
     return 0;
 }
