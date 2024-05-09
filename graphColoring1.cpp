@@ -75,3 +75,81 @@ int main(){
 
     return 0;
 }
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Graph {
+    int V;
+    vector<vector<int>> graph;
+
+public:
+    Graph(int vertices) : V(vertices) {
+        graph = vector<vector<int>>(V, vector<int>(V, 0));
+    }
+
+    bool is_safe(int v, vector<int>& colour, int c) {
+        for (int i = 0; i < V; ++i) {
+            if (graph[v][i] == 1 && colour[i] == c) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    int graph_colouring_util(int m, vector<int>& colour, int v, int num_colours) {
+        if (v == V) {
+            return num_colours;
+        }
+
+        for (int c = 1; c <= m; ++c) {
+            if (is_safe(v, colour, c)) {
+                colour[v] = c;
+                if (num_colours < m) {
+                    int new_num_colours = graph_colouring_util(m, colour, v + 1, num_colours + 1);
+                    if (new_num_colours == m) {
+                        return new_num_colours;
+                    }
+                }
+                else {
+                    int new_num_colours = graph_colouring_util(m, colour, v + 1, num_colours);
+                    if (new_num_colours == m) {
+                        return new_num_colours;
+                    }
+                }
+                colour[v] = 0;
+            }
+        }
+        return num_colours;
+    }
+
+    void graph_colouring(int m) {
+        vector<int> colour(V, 0);
+        int num_colours = graph_colouring_util(m, colour, 0, 0);
+
+        if (num_colours == m) {
+            cout << "Solution exists. The coloring of vertices is:" << endl;
+            for (int c : colour) {
+                cout << c << " ";
+            }
+            cout << endl;
+        }
+        else {
+            cout << "Solution does not exist" << endl;
+        }
+    }
+};
+
+int main() {
+    Graph g(4);
+    g.graph = {{0, 1, 1, 1},
+               {1, 0, 1, 0},
+               {1, 1, 0, 1},
+               {1, 0, 1, 0}};
+
+    int m = 3; // Number of colors
+    g.graph_colouring(m);
+
+    return 0;
+}
